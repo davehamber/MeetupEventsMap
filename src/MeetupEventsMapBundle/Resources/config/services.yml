@@ -1,0 +1,4 @@
+services:
+#    meetup_events.example:
+#        class: DaveHamber\Bundles\MeetupEventsMapBundle\Example
+#        arguments: ["@service_id", "plain_value", %parameter%]
