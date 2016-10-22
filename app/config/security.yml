@@ -22,3 +22,10 @@ security:
 
             # form_login: ~
             # http://symfony.com/doc/current/cookbook/security/form_login_setup.html
+            oauth:
+                resource_owners:
+                    meetup: /login/check-meetup
+                login_path: /login
+                failure_path: /login
+                oauth_user_provider:
+                    service: hwi_oauth.user.provider

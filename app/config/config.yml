@@ -67,3 +67,20 @@ swiftmailer:
     username:  "%mailer_user%"
     password:  "%mailer_password%"
     spool:     { type: memory }
+
+hwi_oauth:
+    firewall_names:         ["main"]
+
+    resource_owners:
+        meetup:
+            type: oauth2
+            client_id:  xxxxxx
+            client_secret:  xxxxxx
+            access_token_url:    https://auth.khlass.local/web/app_dev.php/oauth/v2/token
+            authorization_url:   https://auth.khlass.local/web/app_dev.php/oauth/v2/auth
+            infos_url:           https://auth.khlass.local/web/app_dev.php/user/me
+            paths:
+                identifier: id
+                nickname:   username
+                realname:   ["first_name", "last_name"]
+                email:      email
