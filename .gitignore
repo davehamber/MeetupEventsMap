@@ -1,5 +1,7 @@
 /app/config/parameters.yml
 /build/
+/.idea/
+/.vagrant/
 /phpunit.xml
 /var/*
 !/var/cache
