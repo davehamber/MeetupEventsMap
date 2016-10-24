@@ -54,6 +54,7 @@ doctrine:
         #   2. Uncomment database_path in parameters.yml.dist
         #   3. Uncomment next line:
         #     path:     "%database_path%"
+        server_version: 5.6 # your database server version here
 
     orm:
         auto_generate_proxy_classes: "%kernel.debug%"
@@ -74,13 +75,14 @@ hwi_oauth:
     resource_owners:
         meetup:
             type: oauth2
-            client_id:  xxxxxx
-            client_secret:  xxxxxx
-            access_token_url:    https://auth.khlass.local/web/app_dev.php/oauth/v2/token
-            authorization_url:   https://auth.khlass.local/web/app_dev.php/oauth/v2/auth
-            infos_url:           https://auth.khlass.local/web/app_dev.php/user/me
+            client_id:  "%meetup_client_id%"
+            client_secret:  "%meetup_secret%"
+            access_token_url:    https://secure.meetup.com/oauth2/access
+            authorization_url:   https://secure.meetup.com/oauth2/authorize
+            infos_url:           https://api.meetup.com/2/member/self
+            scope: "basic"
+            user_response_class: HWI\Bundle\OAuthBundle\OAuth\Response\PathUserResponse
             paths:
                 identifier: id
-                nickname:   username
-                realname:   ["first_name", "last_name"]
-                email:      email
+                nickname:   name
+                realname:   name
