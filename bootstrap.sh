@@ -24,6 +24,12 @@ xdebug.remote_host=10.0.2.2
 xdebug.remote_port=9000
 EOF
 
+# Steps for PHPUnit
+yum -y install wget
+wget https://phar.phpunit.de/phpunit.phar
+chmod +x phpunit.phar
+mv phpunit.phar /usr/local/bin/phpunit
+
 # Give php.ini a timezone to stop php configuration moans
 sed -i "s/;date.timezone =/date.timezone = Europe\/Berlin/g" /etc/php.ini
 
