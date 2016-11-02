@@ -13,6 +13,9 @@ hwi_oauth_login:
 meetup_login:
     path: /login/check-meetup
 
+logout:
+    path: /logout
+
 meetup_events:
     resource: "@MeetupEventsBundle/Resources/config/routing.yml"
     prefix:   /
