@@ -37,6 +37,8 @@ framework:
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
+    globals:
+        meetup_client_id: "%meetup_client_id%"
 
 # Doctrine Configuration
 doctrine:
