@@ -17,7 +17,12 @@ yum -y install php56w-pdo
 yum -y install php56w-devel gcc gcc-c++ autoconf automake
 yum -y install php-pear
 pecl install Xdebug
-echo "zend_extension=xdebug.so" > /etc/php.d/xdebug.ini
+cat > /etc/php.d/xdebug.ini << EOF
+zend_extension=xdebug.so
+xdebug.remote_enable=1
+xdebug.remote_host=10.0.2.2
+xdebug.remote_port=9000
+EOF
 
 # Give php.ini a timezone to stop php configuration moans
 sed -i "s/;date.timezone =/date.timezone = Europe\/Berlin/g" /etc/php.ini
