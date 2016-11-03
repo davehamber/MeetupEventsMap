@@ -7,3 +7,6 @@ services:
 #    service_name:
 #        class: AppBundle\Directory\ClassName
 #        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+    meetup_api_client:
+        class: DaveHamber\Bundles\MeetupEventsMapBundle\Model\MeetupApiClient
+        arguments: ['@circle.restclient', "@=service('security.token_storage').getToken()"]
