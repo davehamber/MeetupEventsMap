@@ -1,0 +1,13 @@
+#meetup-login {
+    display: inline-block;
+}
+
+#meetup-login img {
+    vertical-align: middle;
+    width: 56px;
+    height: 20px;
+}
+#meetup-login span {
+    display: inline-block;
+    vertical-align: middle;
+}
