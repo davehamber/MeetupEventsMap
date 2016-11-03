@@ -1,3 +1,7 @@
 meetup_events_homepage:
     path:     /
     defaults: { _controller: MeetupEventsBundle:Default:index }
+
+meetup_events_test:
+    path:     /test
+    defaults: { _controller: MeetupEventsBundle:Default:test }

@@ -1,0 +1,13 @@
+{% extends '::base.html.twig' %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('bundles/meetupevents/css/meetupeventsmap.css') }}"/>
+{% endblock %}
+{% block body %}
+    {% include 'MeetupEventsBundle:Default:login-button.html.twig' %}
+    <ul>
+    {% for class in event_data %}
+        <li>{{ class.name|e }}</li>
+    {% endfor %}
+    </ul>
+
+{% endblock %}
