@@ -1,4 +1,7 @@
 {% extends '::base.html.twig' %}
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ asset('bundles/meetupevents/css/meetupeventsmap.css') }}"/>
+{% endblock %}
 {% block body %}
-Hello World!
+{% include 'MeetupEventsBundle:Default:login-button.html.twig' %}
 {% endblock %}
