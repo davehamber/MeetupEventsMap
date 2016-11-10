@@ -88,3 +88,10 @@ hwi_oauth:
                 identifier: id
                 nickname:   name
                 realname:   name
+
+assetic:
+    debug:          '%kernel.debug%'
+    use_controller: '%kernel.debug%'
+    filters:
+        cssrewrite: ~
+    bundles:        [ MeetupEventsBundle ]

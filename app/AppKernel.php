@@ -17,7 +17,8 @@ class AppKernel extends Kernel
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new DaveHamber\Bundles\MeetupEventsMapBundle\MeetupEventsBundle(),
             new HWI\Bundle\OAuthBundle\HWIOAuthBundle(),
-            new Circle\RestClientBundle\CircleRestClientBundle()
+            new Circle\RestClientBundle\CircleRestClientBundle(),
+            new Symfony\Bundle\AsseticBundle\AsseticBundle()
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
