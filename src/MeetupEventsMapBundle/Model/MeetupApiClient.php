@@ -31,7 +31,7 @@ class MeetupApiClient
 
     public function findEvents()
     {
-        $uri = $this->apiUri . $this->findEventsEndpoint . '?' . 'only=name';
+        $uri = $this->apiUri . $this->findEventsEndpoint . '?' . 'only=name,venue,time,description';
 
         /**
          * @var \Symfony\Component\HttpFoundation\Response
@@ -46,11 +46,23 @@ class MeetupApiClient
         $httpCode = $response->getStatusCode();
 
         if (Response::HTTP_OK == $httpCode) {
-            $eventData = json_decode($response->getContent());
+            $decodedJsonEventData = json_decode($response->getContent());
+            $decodedJsonEventData = array_unique($decodedJsonEventData, SORT_REGULAR);
+            foreach ($decodedJsonEventData as $eventDataClass) {
+                if (isset ($eventDataClass->name, $eventDataClass->venue) &&
+                    isset($eventDataClass->time, $eventDataClass->time) &&
+                    isset($eventDataClass->venue->lat, $eventDataClass->venue->lon) &&
+                    !($eventDataClass->venue->lat == 0 && $eventDataClass->venue->lon == 0)
+                ) {
+
+                    $eventData[] = $eventDataClass;
+                }
+            }
+
         } else {
             $eventData = array();
         }
-
+        $eventData = $eventData;
         return $eventData;
     }
 }
