@@ -1,0 +1,36 @@
+{% extends 'MeetupEventsBundle:Test:base.html.twig' %}
+
+{% block stylesheets %}
+    {% stylesheets '@bootstrap_css' '@bootstrap_datepicker_css' %}
+    <link rel="stylesheet" type="text/css" media="screen" href="{{ asset_url }}"/>
+    {% endstylesheets %}
+    <link rel="stylesheet" href="{{ asset('bundles/meetupevents/css/meetupeventsmap.css') }}"/>
+{% endblock %}
+{% block body %}
+    {% javascripts '@jquery' '@bootstrap_js' '@bootstrap_datepicker_js' %}
+    <script src="{{ asset_url }}"></script>
+    {% endjavascripts %}
+    {% include 'MeetupEventsBundle:Default:login-button.html.twig' %}
+    <div style="height: 600px;" id="map"></div>
+    <div class="well bs-component">
+        {{ form_start(form) }}
+        {{ form_label(form.startDate) }}
+        {{ form_widget(form.startDate, {'attr': {'class': 'task_field'}}) }}
+        {{ form_label(form.endDate) }}
+        {{ form_widget(form.endDate, {'attr': {'class': 'task_field'}}) }}
+        {{ form_widget(form.select, {'attr': {'class': 'task_field'}}) }}
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        var TWIG = {};
+        TWIG.eventData = {{ event_data|json_encode|raw }};
+    </script>
+    {% javascripts '@MeetupEventsBundle/Resources/public/js/*' %}
+    <script src="{{ asset_url }}"></script>
+    {% endjavascripts %}
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap">
+    </script>
+{% endblock %}
