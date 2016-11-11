@@ -19,3 +19,4 @@ parameters:
     secret:            ThisTokenIsNotSoSecretChangeIt
     meetup_client_id:   AddMeetupClientIdHere
     meetup_secret:      AddMeetupSecretHere
+    google_api_key:     AddGoogleAPIKeyHere
