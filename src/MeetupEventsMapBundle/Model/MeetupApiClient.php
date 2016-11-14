@@ -29,9 +29,14 @@ class MeetupApiClient
         $this->accessToken = $token->getAccessToken();
     }
 
-    public function findEvents()
+    public function findEvents($startDate = null, $endDate = null)
     {
         $uri = $this->apiUri . $this->findEventsEndpoint . '?' . 'only=name,venue,time,description';
+
+        if ($endDate != null) {
+            $compareDate = clone $endDate;
+            $compareDate->modify("+1 day");
+        }
 
         /**
          * @var \Symfony\Component\HttpFoundation\Response
@@ -45,24 +50,55 @@ class MeetupApiClient
 
         $httpCode = $response->getStatusCode();
 
+        $eventData = [];
         if (Response::HTTP_OK == $httpCode) {
+
+            if (isset($response->headers)) {
+
+                $link = $response->headers->get('link');
+
+                $link = $link;
+
+                if ($link[0] == '<') {
+                    $index = strpos($link, '>');
+                    if (false !== $index) {
+                        $uri = urldecode(substr($link, 1, $index - 1));
+                    }
+                }
+
+                $queryString = parse_url($link, PHP_URL_QUERY);
+                $parameters = [];
+                parse_str($queryString, $parameters);
+
+                if (isset($parameters['scroll'])) {
+                    $scroll = $parameters['scroll'];
+                    $commencementDate = substr($scroll, 6, 10);
+                }
+
+                $a = 0;
+
+            }
+
             $decodedJsonEventData = json_decode($response->getContent());
             $decodedJsonEventData = array_unique($decodedJsonEventData, SORT_REGULAR);
             foreach ($decodedJsonEventData as $eventDataClass) {
-                if (isset ($eventDataClass->name, $eventDataClass->venue) &&
-                    isset($eventDataClass->time, $eventDataClass->time) &&
-                    isset($eventDataClass->venue->lat, $eventDataClass->venue->lon) &&
+                if (isset ($eventDataClass->name, $eventDataClass->venue,
+                    $eventDataClass->time, $eventDataClass->time,
+                    $eventDataClass->venue->lat, $eventDataClass->venue->lon) &&
                     !($eventDataClass->venue->lat == 0 && $eventDataClass->venue->lon == 0)
                 ) {
+                    if ($startDate != null && $endDate != null) {
+                        $date = new \DateTime('@' . (int)($eventDataClass->time / 1000));
 
-                    $eventData[] = $eventDataClass;
+                        if ($date >= $startDate && $date < $compareDate) {
+                            $eventData[] = $eventDataClass;
+                        }
+                    } else {
+                        $eventData[] = $eventDataClass;
+                    }
                 }
             }
-
-        } else {
-            $eventData = array();
         }
-        $eventData = $eventData;
         return $eventData;
     }
 }
