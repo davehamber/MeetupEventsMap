@@ -23,11 +23,15 @@ class DefaultController extends Controller
 
         $form = $this->createForm(DateRangeType::class);
 
+        $startDate = null;
+        $endDate = null;
+
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
 
             if ($form->isValid()) {
-
+                $startDate = $form->get('startDate')->getData();
+                $endDate = $form->get('endDate')->getData();
             }
         }
 
@@ -35,7 +39,7 @@ class DefaultController extends Controller
 
             $meetupAPIClient = $this->get('meetup_api_client');
 
-            $eventData = $meetupAPIClient->findEvents();
+            $eventData = $meetupAPIClient->findEvents($startDate, $endDate);
             $eventData = array_unique($eventData, SORT_REGULAR);
         } else {
             $eventData = array();
