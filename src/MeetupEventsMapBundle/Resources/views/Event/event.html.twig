@@ -1,0 +1,34 @@
+<div style="max-height:250px; overflow-y:auto;">
+<div>
+    {% if event_data.group.name is defined %}
+    <span><b>Group:</b> {{ event_data.group.name|raw }}</span>
+    {% endif %}
+    {% if event_data.name is defined and event_data.group.urlname is defined and event_data.id is defined %}
+    <span>
+        <b>Event:</b> <a href="https://www.meetup.com/{{ event_data.group.urlname|raw }}/events/{{ event_data.id }}">{{ event_data.name|raw }}</a></span>
+    {% endif %}
+</div>
+    {% if event_data.time is defined %}
+    <div><b>Date:</b> {{ event_data.date|e }} <b>Time:</b> {{ event_data.time|e }}</div>
+    {% endif %}
+<div>
+<b>Location:</b><br/>
+    {% if event_data.venue.name is defined %}
+    {{ event_data.venue.name|e }}<br/>
+    {% endif %}
+    {% if event_data.venue.address_1 is defined %}
+    {{ event_data.venue.address_1|e }}<br/>
+    {% endif %}
+    {% if event_data.venue.address_2 is defined %}
+        {{ event_data.venue.address_2|e }}<br/>
+    {% endif %}
+    {% if event_data.venue.city is defined %}
+    {{ event_data.venue.city|e }}<br/>
+    {% endif %}
+</div>
+<div>
+<b>Description:</b>
+    {% if event_data.description is defined %}
+{{ event_data.description|raw }}</div>
+    {% endif %}
+</div>
