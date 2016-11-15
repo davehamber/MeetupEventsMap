@@ -5,3 +5,7 @@ meetup_events_homepage:
 meetup_events_test:
     path:     /test
     defaults: { _controller: MeetupEventsBundle:Default:test }
+
+meetup_event:
+    path:     /event/{groupUrl}/{eventId}
+    defaults: { _controller: MeetupEventsBundle:Default:event }
