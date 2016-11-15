@@ -44,7 +44,7 @@ class DefaultController extends Controller
             $eventData = array();
         }
 
-        return $this->render('MeetupEventsBundle:Test:test.html.twig', array('event_data' => $eventData, 'form' => $form->createView()));
+        return $this->render('MeetupEventsBundle:Default:index.html.twig', array('event_data' => $eventData, 'form' => $form->createView()));
     }
 
     public function eventAction($groupUrl, $eventId)
