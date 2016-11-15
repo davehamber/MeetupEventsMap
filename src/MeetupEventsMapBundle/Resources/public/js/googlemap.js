@@ -6,6 +6,11 @@ function initMap() {
         center: myLatLng
     });
 
+    var content = "Loading...";
+
+    var infoWindow = new google.maps.InfoWindow();
+    infoWindow.setContent(content);
+
     for (var property in TWIG.eventData) {
         if (TWIG.eventData.hasOwnProperty(property)) {
             // do stuff
@@ -13,9 +18,8 @@ function initMap() {
             if (typeof TWIG.eventData[property].name !== 'undefined' &&
                 typeof TWIG.eventData[property].venue !== 'undefined') {
 
-                var eventVenue = TWIG.eventData[property].venue;
-                var eventName = TWIG.eventData[property].name;
-                var eventTime = TWIG.eventData[property].time;
+                var groupUrl = TWIG.eventData[property].group.urlname;
+                var eventId = TWIG.eventData[property].id;
 
                 var eventDescription;
 
@@ -33,60 +37,29 @@ function initMap() {
                     title: TWIG.eventData[property].name
                 });
 
-                marker.content = formattedInfoWindowContent(eventName, eventVenue, eventTime, eventDescription);
-
-                var infoWindow = new google.maps.InfoWindow();
-
-                google.maps.event.addListener(marker, 'click', function () {
-                    infoWindow.setContent(this.content);
-                    infoWindow.open(this.getMap(), this);
-                });
-
-                //console.log(TWIG.eventData[property].name);
+                google.maps.event.addListener(marker, 'click', (function(marker, infoWindow, groupUrl, eventId) {
+                    return function() {
+                        if (infoWindow) {
+                            infoWindow.close();
+                        }
+                        infoWindow.setContent(content);
+                        infoWindow.open(map, this);
+                        infoWindowAjax(groupUrl, eventId, function(data) {
+                            infoWindow.setContent(data);
+                        });
+                    };
+                })(marker, infoWindow, groupUrl, eventId));
             }
         }
     }
 }
 
-function formattedInfoWindowContent(eventName, eventVenue, eventTime, eventDescription)
-{
-    var options = {
-        hour: "2-digit", minute: "2-digit"
-    };
-
-    var date = new Date(eventTime);
-    var infoWindowContent = "<p><b>Event:</b> " + eventName + "</p>";
-
-    infoWindowContent += "<p><b>Date:</b>" + date.toLocaleDateString("en-GB") +
-        " <b>Time:</b>" + date.toLocaleTimeString("en-GB", options) + "</p>";
-
-    infoWindowContent += "<p><b>Location:</b><br/>";
-
-    if (typeof eventVenue.name != 'undefined') {
-        infoWindowContent += eventVenue.name + "<br/>";
-    }
-
-    if (typeof eventVenue.address_1 != 'undefined') {
-        infoWindowContent += eventVenue.address_1 + "<br/>";
-    }
-
-    if (typeof eventVenue.address_2 != 'undefined') {
-        infoWindowContent += eventVenue.address_2 + "<br/>";
-    }
-
-    if (typeof eventVenue.address_3 != 'undefined') {
-        infoWindowContent += eventVenue.address_3 + "<br/>";
-    }
-
-    if (typeof eventVenue.city != 'undefined') {
-        infoWindowContent += eventVenue.city + "<br/>";
-    }
-
-    infoWindowContent += "</p>";
-
-    if (eventDescription != "") {
-        infoWindowContent += "<p><b>Description:</b><br/>" + eventDescription + "</p>";
-    }
-
-    return infoWindowContent;
+function infoWindowAjax(groupUrl, eventId, callback) {
+    return $.ajax({
+        url: '/event/' + groupUrl + '/' + eventId
+    })
+    .done(callback)
+    .fail(function(jqXHR, textStatus, errorThrown) {
+        alert(errorThrown);
+    });
 }
