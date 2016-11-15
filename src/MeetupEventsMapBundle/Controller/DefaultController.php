@@ -2,22 +2,19 @@
 
 namespace DaveHamber\Bundles\MeetupEventsMapBundle\Controller;
 
+use DateTime;
 use DaveHamber\Bundles\MeetupEventsMapBundle\Form\Type\DateRangeType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
+
 class DefaultController extends Controller
 {
-    public function indexAction()
-    {
-        return $this->render('MeetupEventsBundle:Default:index.html.twig');
-    }
-
     /**
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function testAction(Request $request)
+    public function indexAction(Request $request)
     {
         $securityAuthorizationChecker = $this->container->get('security.authorization_checker');
 
@@ -25,6 +22,9 @@ class DefaultController extends Controller
 
         $startDate = null;
         $endDate = null;
+
+        $startDate = new DateTime('today midnight');
+        $endDate = new DateTime('today midnight');
 
         if ($request->isMethod('POST')) {
             $form->handleRequest($request);
@@ -39,12 +39,20 @@ class DefaultController extends Controller
 
             $meetupAPIClient = $this->get('meetup_api_client');
 
-            $eventData = $meetupAPIClient->findEvents($startDate, $endDate);
-            $eventData = array_unique($eventData, SORT_REGULAR);
+            $eventData = $meetupAPIClient->findEventsByDate($startDate, $endDate);
         } else {
             $eventData = array();
         }
 
         return $this->render('MeetupEventsBundle:Test:test.html.twig', array('event_data' => $eventData, 'form' => $form->createView()));
+    }
+
+    public function eventAction($groupUrl, $eventId)
+    {
+        $meetupAPIClient = $this->get('meetup_api_client');
+
+        $eventData = $meetupAPIClient->getEvent($groupUrl, $eventId);
+
+        return $this->render('MeetupEventsBundle:Event:event.html.twig', ['event_data' => $eventData]);
     }
 }
