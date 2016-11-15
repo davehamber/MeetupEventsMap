@@ -25,11 +25,25 @@
 {% block javascripts %}
     <script>
         var TWIG = {};
+        TWIG.loginClientId = "{{ meetup_client_id }}";
+        TWIG.logoutUrl = "{{ url('logout') }}";
         TWIG.eventData = {{ event_data|json_encode|raw }};
     </script>
-    {% javascripts '@MeetupEventsBundle/Resources/public/js/*' %}
-    <script src="{{ asset_url }}"></script>
-    {% endjavascripts %}
+    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+        {% javascripts '@MeetupEventsBundle/Resources/public/js/googlemap.js'
+            '@MeetupEventsBundle/Resources/public/js/datePicker.js'
+            '@MeetupEventsBundle/Resources/public/js/meetup-logout.js'
+        %}
+        <script src="{{ asset_url }}"></script>
+        {% endjavascripts %}
+    {% else %}
+        {% javascripts '@MeetupEventsBundle/Resources/public/js/googlemap.js'
+            '@MeetupEventsBundle/Resources/public/js/datePicker.js'
+            '@MeetupEventsBundle/Resources/public/js/meetup-login.js' %}
+        <script src="{{ asset_url }}"></script>
+        {% endjavascripts %}
+    {% endif %}
+
     <script async defer
             src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap">
     </script>
