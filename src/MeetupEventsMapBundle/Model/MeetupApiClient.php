@@ -9,6 +9,7 @@
 namespace DaveHamber\Bundles\MeetupEventsMapBundle\Model;
 
 use Circle\RestClientBundle\Services\RestInterface;
+use DateTime;
 use \HWI\Bundle\OAuthBundle\Security\Core\Authentication\Token\OAuthToken;
 use \Symfony\Component\HttpFoundation\Response;
 
@@ -18,87 +19,159 @@ class MeetupApiClient
 
     private $accessToken;
 
-    private $apiUri = "https://api.meetup.com/";
-
-    private $findEventsEndpoint = "find/events";
+    private $curlOpts;
 
     public function __construct(RestInterface $restClient, OAuthToken $token)
     {
         $this->restClient = $restClient;
 
         $this->accessToken = $token->getAccessToken();
+
+        $this->curlOpts =
+            [
+                CURLOPT_HTTPHEADER => ["Authorization: Bearer $this->accessToken"]
+            ];
     }
 
-    public function findEvents($startDate = null, $endDate = null)
+    public function findEventsByDate(DateTime $startDate, DateTime $endDate)
     {
-        $uri = $this->apiUri . $this->findEventsEndpoint . '?' . 'only=name,venue,time,description';
+        $eventData = [];
 
-        if ($endDate != null) {
-            $compareDate = clone $endDate;
-            $compareDate->modify("+1 day");
+        if ($startDate > $endDate) {
+            return $eventData;
         }
 
+        $meetupEvents = new MeetupEvents();
+
+        list($eventData, $nextUri) =
+            $this->fetchEventData($meetupEvents->getFindEventsUri($startDate));
+
+        $endDay = clone $endDate;
+        $endDay->modify("+1 day");
+
+        list($eventData, $endDateReached) = $this->filterEventData($eventData, $startDate, $endDay);
+
+        while (!$endDateReached && $nextUri) {
+            list($nextEventData, $nextUri) =
+                $this->fetchEventData($nextUri);
+
+            list($nextEventData, $endDateReached) = $this->filterEventData($nextEventData, $startDate, $endDay);
+
+            $eventData = array_merge($eventData, $nextEventData);
+
+            if ($nextUri == null) {
+                break;
+            }
+        }
+
+        return $eventData;
+    }
+
+    public function getEvent($groupUrl, $eventId)
+    {
+        $meetupEvents = new MeetupEvents();
+
+        $eventData = [];
+        /**
+         * @var \Symfony\Component\HttpFoundation\Response
+         */
+        $response = $this->restClient->get(
+            $meetupEvents->getEvent($groupUrl, $eventId),
+            $this->curlOpts
+        );
+
+        $httpCode = $response->getStatusCode();
+
+        if (Response::HTTP_OK != $httpCode) {
+            return $eventData;
+        }
+
+        $eventData = json_decode($response->getContent());
+
+        if (isset($eventData->time)) {
+            $eventData->date = date("d-m-Y", $eventData->time / 1000);
+            $eventData->time = date("H:i:s", $eventData->time / 1000);
+        }
+
+        return $eventData;
+    }
+
+    private function fetchEventData($uri)
+    {
+        $eventData = [];
         /**
          * @var \Symfony\Component\HttpFoundation\Response
          */
         $response = $this->restClient->get(
             $uri,
-            array(
-                CURLOPT_HTTPHEADER => array("Authorization: Bearer $this->accessToken")
-            )
+            $this->curlOpts
         );
 
         $httpCode = $response->getStatusCode();
 
-        $eventData = [];
-        if (Response::HTTP_OK == $httpCode) {
+        if (Response::HTTP_OK != $httpCode) {
+            return [$eventData, null];
+        }
 
-            if (isset($response->headers)) {
+        $headerLink = $response->headers->get('link');
 
-                $link = $response->headers->get('link');
+        if (null != $headerLink) {
+            $nextUri = $this->getNextUri($headerLink);
+        } else {
+            $nextUri = null;
+        }
 
-                $link = $link;
+        $eventData = json_decode($response->getContent());
+        $eventData = array_unique($eventData, SORT_REGULAR);
 
-                if ($link[0] == '<') {
-                    $index = strpos($link, '>');
-                    if (false !== $index) {
-                        $uri = urldecode(substr($link, 1, $index - 1));
-                    }
-                }
+        return [$eventData, $nextUri];
+    }
 
-                $queryString = parse_url($link, PHP_URL_QUERY);
-                $parameters = [];
-                parse_str($queryString, $parameters);
+    private function filterEventData($eventData, DateTime $startDate, DateTime $endDate)
+    {
+        $filteredEventData = [];
 
-                if (isset($parameters['scroll'])) {
-                    $scroll = $parameters['scroll'];
-                    $commencementDate = substr($scroll, 6, 10);
-                }
+        $endDateReached = false;
 
-                $a = 0;
-
+        foreach ($eventData as $eventDataRow) {
+            if (!isset ($eventDataRow->name,
+                    $eventDataRow->venue,
+                    $eventDataRow->time,
+                    $eventDataRow->time,
+                    $eventDataRow->venue->lat,
+                    $eventDataRow->venue->lon)) {
+                continue;
             }
 
-            $decodedJsonEventData = json_decode($response->getContent());
-            $decodedJsonEventData = array_unique($decodedJsonEventData, SORT_REGULAR);
-            foreach ($decodedJsonEventData as $eventDataClass) {
-                if (isset ($eventDataClass->name, $eventDataClass->venue,
-                    $eventDataClass->time, $eventDataClass->time,
-                    $eventDataClass->venue->lat, $eventDataClass->venue->lon) &&
-                    !($eventDataClass->venue->lat == 0 && $eventDataClass->venue->lon == 0)
-                ) {
-                    if ($startDate != null && $endDate != null) {
-                        $date = new \DateTime('@' . (int)($eventDataClass->time / 1000));
+            if ($eventDataRow->venue->lat == 0 && $eventDataRow->venue->lon == 0) {
+                continue;
+            }
 
-                        if ($date >= $startDate && $date < $compareDate) {
-                            $eventData[] = $eventDataClass;
-                        }
-                    } else {
-                        $eventData[] = $eventDataClass;
-                    }
+            $rowDate = new DateTime('@' . (int)($eventDataRow->time / 1000));
+
+            if ($rowDate >= $startDate) {
+                if ($rowDate <= $endDate) {
+                    $filteredEventData[] = $eventDataRow;
+                } else {
+                    $endDateReached = true;
                 }
             }
         }
-        return $eventData;
+
+        return [$filteredEventData, $endDateReached];
+    }
+
+    private function getNextUri($headerLink)
+    {
+        $uri = '';
+
+        if ($headerLink[0] == '<') {
+            $index = strpos($headerLink, '>');
+            if (false !== $index) {
+                $uri = urldecode(substr($headerLink, 1, $index - 1));
+            }
+        }
+
+        return $uri;
     }
 }
