@@ -1,27 +1,3 @@
-<script>
-    function meetupLoginWindow(url) {
-
-        window.open(url, '_parent','height=800,width=400,location=no,menubar=no,scrollbars=no');
-
-    }
-    window.onload=function() {
-        document.getElementById("meetup-login").addEventListener("click", function () {
-
-            var url = "https://secure.meetup.com/oauth2/authorize"
-            var clientId = "{{ meetup_client_id }}";
-            var responseType = "code";
-            var redirectUri = "http://mueventsmap.com:8000/connect/meetup";
-            var urlString = url +
-                    "?client_id=" + clientId +
-                    "&response_type=" + responseType +
-                    "&redirect_uri=" + redirectUri;
-
-            meetupLoginWindow(urlString);
-        });
-    }
-
-</script>
-
 {% if is_granted('IS_AUTHENTICATED_FULLY') %}
     <div id="meetup-login">
         <img src="{{ asset('bundles/meetupevents/images/meetup-logo.svg') }}" alt="Meetup">
