@@ -28,6 +28,7 @@
         TWIG.lonLat = {{ lon_lat_data|json_encode|raw }}
         TWIG.loginClientId = "{{ meetup_client_id }}";
         TWIG.logoutUrl = "{{ url('logout') }}";
+        TWIG.connectUrl = "{{ url('hwi_oauth_service_redirect', {'service': 'meetup'}) }}";
         TWIG.eventData = {{ event_data|json_encode|raw }};
     </script>
     {% if is_granted('IS_AUTHENTICATED_FULLY') %}
