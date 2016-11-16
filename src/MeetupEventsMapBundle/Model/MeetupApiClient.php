@@ -15,6 +15,8 @@ use \Symfony\Component\HttpFoundation\Response;
 
 class MeetupApiClient
 {
+    const GET_SELF_ENDPOINT = "2/member/self";
+
     private $restClient;
 
     private $accessToken;
@@ -65,6 +67,33 @@ class MeetupApiClient
         }
 
         return $eventData;
+    }
+
+    public function getUserLonLat()
+    {
+        $requestOnly = new RequestParameter(MeetupEvents::REQUEST_PARAMETER_ONLY);
+        $requestOnly
+            ->setValue(UriBuilder::LON)
+            ->setValue(UriBuilder::LAT);
+
+        $uri = new UriBuilder(MeetupApiClient::GET_SELF_ENDPOINT);
+
+        $uri->setRequestParameter($requestOnly);
+
+        $response = $this->restClient->get(
+            $uri->getUri(),
+            $this->curlOpts
+        );
+
+        $httpCode = $response->getStatusCode();
+
+        if (Response::HTTP_OK != $httpCode) {
+            return [];
+        }
+
+        $lonLatData = json_decode($response->getContent(), true);
+
+        return $lonLatData;
     }
 
     public function getEvent($groupUrl, $eventId)
