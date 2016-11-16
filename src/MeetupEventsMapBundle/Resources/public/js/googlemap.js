@@ -1,5 +1,13 @@
 function initMap() {
-    var myLatLng = {lat: 52.5200, lng: 13.4050};
+
+    var myLatLng;
+
+    if (typeof TWIG.lonLat.lat != 'undefined' && typeof TWIG.lonLat.lon != 'undefined') {
+        myLatLng = {lat: TWIG.lonLat.lat, lng: TWIG.lonLat.lon};
+    }
+    else {
+        myLatLng = {lat: 51.5073509, lng: -0.1277583};
+    }
 
     var map = new google.maps.Map(document.getElementById('map'), {
         zoom: 12,

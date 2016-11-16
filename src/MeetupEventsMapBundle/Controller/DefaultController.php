@@ -39,12 +39,14 @@ class DefaultController extends Controller
 
             $meetupAPIClient = $this->get('meetup_api_client');
 
+            $lonLatData = $meetupAPIClient->getUserLonLat();
             $eventData = $meetupAPIClient->findEventsByDate($startDate, $endDate);
         } else {
-            $eventData = array();
+            $eventData = [];
+            $lonLatData = [];
         }
 
-        return $this->render('MeetupEventsBundle:Default:index.html.twig', array('event_data' => $eventData, 'form' => $form->createView()));
+        return $this->render('MeetupEventsBundle:Default:index.html.twig', array('event_data' => $eventData, 'lon_lat_data' => $lonLatData, 'form' => $form->createView()));
     }
 
     public function eventAction($groupUrl, $eventId)

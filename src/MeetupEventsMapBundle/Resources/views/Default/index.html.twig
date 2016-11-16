@@ -25,6 +25,7 @@
 {% block javascripts %}
     <script>
         var TWIG = {};
+        TWIG.lonLat = {{ lon_lat_data|json_encode|raw }}
         TWIG.loginClientId = "{{ meetup_client_id }}";
         TWIG.logoutUrl = "{{ url('logout') }}";
         TWIG.eventData = {{ event_data|json_encode|raw }};
