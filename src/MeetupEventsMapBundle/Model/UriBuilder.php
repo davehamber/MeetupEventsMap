@@ -19,6 +19,8 @@ class UriBuilder
     const DESCRIPTION = 'description';
     const ID = 'id';
     const GROUP = 'group';
+    const LON = 'lon';
+    const LAT = 'lat';
 
     private $endPoint;
 
